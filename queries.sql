@@ -134,11 +134,11 @@ SELECT DISTINCT ON (s.customer_id)
 FROM
     sales AS s
 JOIN
-    customers AS c ON s.customer_id = c.customer_id
+    public.customers AS c ON s.customer_id = c.customer_id
 JOIN
-    employees AS e ON s.sales_person_id = e.employee_id
+    public.employees AS e ON s.sales_person_id = e.employee_id
 JOIN
-    products AS p ON s.product_id = p.product_id
+    public.products AS p ON s.product_id = p.product_id
 WHERE
     p.price = 0
 ORDER BY
