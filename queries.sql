@@ -133,9 +133,12 @@ SELECT DISTINCT ON (s.customer_id)
     CONCAT(e.first_name, ' ', e.last_name) AS seller
 FROM
     sales AS s
-JOIN public.customers AS c ON s.customer_id = c.customer_id
-JOIN public.employees AS e ON s.sales_person_id = e.employee_id
-JOIN public.products AS p ON s.product_id = p.product_id
+INNER JOIN 
+    public.customers AS c ON s.customer_id = c.customer_id
+INNER JOIN 
+    public.employees AS e ON s.sales_person_id = e.employee_id
+INNER JOIN 
+    public.products AS p ON s.product_id = p.product_id
 WHERE
     p.price = 0
 ORDER BY
