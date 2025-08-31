@@ -127,31 +127,16 @@ ORDER BY
 --этот запрос предоставляет данные о покупателях,
 --совершивших первую покупку в ходе проведения акций
 
-WITH ranked_sales AS (
-    SELECT
-        s.sale_date,
-        CONCAT(c.first_name, ' ', c.last_name) AS customer,
-        CONCAT(e.first_name, ' ', e.last_name) AS seller,
-        ROW_NUMBER() OVER (
-            PARTITION BY s.customer_id 
-            ORDER BY s.sale_date
-        ) AS rn
-    FROM
-        sales AS s
-    JOIN
-        customers AS c ON s.customer_id = c.customer_id
-    JOIN
-        employees AS e ON s.sales_person_id = e.employee_id
-    JOIN
-        products AS p ON s.product_id = p.product_id
-    WHERE
-        p.price = 0
-)
-SELECT
-    sale_date,
-    customer,
-    seller
+SELECT DISTINCT ON (s.customer_id)
+    s.sale_date,
+    CONCAT(c.first_name, ' ', c.last_name) AS customer,
+    CONCAT(e.first_name, ' ', e.last_name) AS seller
 FROM
-    ranked_sales
+    sales AS s
+JOIN public.customers AS c ON s.customer_id = c.customer_id
+JOIN public.employees AS e ON s.sales_person_id = e.employee_id
+JOIN public.products AS p ON s.product_id = p.product_id
 WHERE
-    rn = 1;
+    p.price = 0
+ORDER BY
+    s.customer_id, s.sale_date;
