@@ -1,6 +1,6 @@
 -- Этот запрос считает общее количество покупателей
 
-SELECT COUNT(customer_id) as customers_count
+SELECT COUNT(customer_id) AS customers_count
 FROM customers;
 
 -- Этот запрос вычисляет десятку лучшх продавцов по их суммарной выручке
@@ -128,8 +128,8 @@ ORDER BY
 --совершивших первую покупку в ходе проведения акций
 
 SELECT DISTINCT ON (s.customer_id)
-    CONCAT(c.first_name, ' ', c.last_name) AS customer,
     s.sale_date,
+    CONCAT(c.first_name, ' ', c.last_name) AS customer,
     CONCAT(e.first_name, ' ', e.last_name) AS seller
 FROM
     sales AS s
