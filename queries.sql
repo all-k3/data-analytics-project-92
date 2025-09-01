@@ -10,9 +10,9 @@ SELECT
     COUNT(s.sales_person_id) AS operations,
     FLOOR(SUM(p.price * s.quantity)) AS income
 FROM
-    employees AS e
+    sales AS s
 INNER JOIN
-    sales AS s ON e.employee_id = s.sales_person_id
+    employees AS e ON s.sales_person_id = e.employee_id
 LEFT JOIN
     products AS p ON s.product_id = p.product_id
 GROUP BY
@@ -25,27 +25,19 @@ LIMIT 10;
 --чья средняя выручка за сделку
 --меньше средней выручки за сделку по всем продавцам.
 
-WITH t1 AS (
-    SELECT
-        CONCAT(e.first_name, ' ', e.last_name) AS seller,
-        FLOOR(AVG(p.price * s.quantity)) AS average_income
-    FROM
-        employees AS e
-    INNER JOIN
-        sales AS s ON e.employee_id = s.sales_person_id
-    LEFT JOIN
-        products AS p ON s.product_id = p.product_id
-    GROUP BY
-        seller
-)
-
 SELECT
-    seller,
-    average_income
+    CONCAT(e.first_name, ' ', e.last_name) AS seller,
+    FLOOR(AVG(p.price * s.quantity)) AS average_income
 FROM
-    t1
-WHERE
-    average_income < (
+    sales AS s
+INNER JOIN
+    employees AS e ON s.sales_person_id = e.employee_id
+LEFT JOIN
+    products AS p ON s.product_id = p.product_id
+GROUP BY
+    e.employee_id, seller
+HAVING
+    FLOOR(AVG(p.price * s.quantity)) < (
         SELECT FLOOR(AVG(p.price * s.quantity))
         FROM sales AS s
         INNER JOIN products AS p ON s.product_id = p.product_id
@@ -67,46 +59,25 @@ LEFT JOIN
     products AS p ON s.product_id = p.product_id
 GROUP BY
     seller,
-    EXTRACT(DOW FROM s.sale_date),
+    EXTRACT(ISODOW FROM s.sale_date),
     TRIM(TO_CHAR(s.sale_date, 'day'))
 ORDER BY
-    CASE
-        WHEN EXTRACT(DOW FROM s.sale_date) = 0 THEN 7
-        ELSE EXTRACT(DOW FROM s.sale_date)
-    END,
+    EXTRACT(ISODOW FROM s.sale_date),
     seller;
 
 --этот запрос вычисляет количество покупателей в разных возрастных группах
 
 SELECT
-    '16-25' AS age_category,
+    CASE
+    	WHEN age BETWEEN 16 AND 25 THEN '16-25'
+    	WHEN age BETWEEN 26 AND 40 THEN '26-40'
+    	WHEN age > 40 THEN '40+'
+    END AS age_category,
     COUNT(customer_id) AS age_count
 FROM
     customers
-WHERE
-    age BETWEEN 16 AND 25
-
-UNION ALL
-
-SELECT
-    '26-40' AS age_category,
-    COUNT(customer_id) AS age_count
-FROM
-    customers
-WHERE
-    age BETWEEN 26 AND 40
-
-UNION ALL
-SELECT
-    '40+' AS age_category,
-    COUNT(customer_id) AS age_count
-FROM
-    customers
-WHERE
-    age > 40
-
-ORDER BY
-    age_category;
+GROUP BY age_category
+ORDER BY age_category;
 
 --этот запрос предоставляет данные по количеству уникальных покупателей
 --и выручке, которую они принесли 
