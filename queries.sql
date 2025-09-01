@@ -38,9 +38,9 @@ GROUP BY
     e.employee_id, seller
 HAVING
     FLOOR(AVG(p.price * s.quantity)) < (
-        SELECT FLOOR(AVG(p.price * s.quantity))
-        FROM sales AS s
-        INNER JOIN products AS p ON s.product_id = p.product_id
+        SELECT FLOOR(AVG(p2.price * s2.quantity))
+        FROM sales AS s2
+        INNER JOIN products AS p2 ON s2.product_id = p2.product_id
     )
 ORDER BY
     average_income;
@@ -69,15 +69,17 @@ ORDER BY
 
 SELECT
     CASE
-    	WHEN age BETWEEN 16 AND 25 THEN '16-25'
-    	WHEN age BETWEEN 26 AND 40 THEN '26-40'
-    	WHEN age > 40 THEN '40+'
+        WHEN age BETWEEN 16 AND 25 THEN '16-25'
+        WHEN age BETWEEN 26 AND 40 THEN '26-40'
+        WHEN age > 40 THEN '40+'
     END AS age_category,
     COUNT(customer_id) AS age_count
 FROM
     customers
-GROUP BY age_category
-ORDER BY age_category;
+GROUP BY
+    age_category
+ORDER BY
+    age_category;
 
 --этот запрос предоставляет данные по количеству уникальных покупателей
 --и выручке, которую они принесли 
